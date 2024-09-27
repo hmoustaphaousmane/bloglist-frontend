@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
+
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -20,10 +22,15 @@ const App = () => {
   const [notificationMessage, setNotificationMessage] = useState(null)
   const [notificationType, setNotificationType] = useState(null)
 
+  const [loginVisible, setLoginVisible] = useState(false)
+  const [blogVisible, setBlogVisible] = useState(false)
+
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    )
+    blogService.getAll().then(blogs => {
+      const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+      console.log(sortedBlogs)
+      setBlogs(sortedBlogs) 
+    })
   }, [])
 
   useEffect(() => {
@@ -73,13 +80,7 @@ const App = () => {
     setUser(null)
   }
 
-  const addBlog = (event) => {
-    const newObject = {
-      title,
-      author,
-      url
-    }
-
+  const addBlog = (newObject) => {
     blogService
       .create(newObject)
       .then(returnedBlog => {
@@ -89,8 +90,9 @@ const App = () => {
         setAuthor('')
         setUrl('')
       })
+    setBlogVisible(false)
 
-    setNotificationMessage(`a new blog ${title} by ${author} added`)
+    setNotificationMessage(`a new blog ${newObject.title} by ${newObject.author} added`)
     setNotificationType('success')
     setTimeout(() => {
       setNotificationMessage(null)
@@ -98,56 +100,71 @@ const App = () => {
     }, 5000)
   }
 
-  return (
-    <div>
-      {user === null
-        ? <div>
-          <h2>log in to application</h2>
+  const loginForm = () => {
+    const hideVisibility = { display: loginVisible ? 'none' : '' }
+    const showVisibility = { display: loginVisible ? '' : 'none' }
 
-          <Notification
-            message={notificationMessage}
-            type={notificationType}
-          />
-
+    return (
+      <div>
+        <div style={hideVisibility}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showVisibility}>
           <LoginForm
             username={username}
-            setUsername={setUsername}
             password={password}
-            setPassword={setPassword}
-            handleLogin={handleLogin}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={handleLogin}
           />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
         </div>
-        : <div>
-          <h2>blogs</h2>
+      </div>
+    )
+  }
 
-          <Notification
-            message={notificationMessage}
-            type={notificationType}
-          />
-
-          <p>{user.name} logged in <button onClick={logout} type='submit'>logout</button></p>
-
-          <h2>create new</h2>
-
+  const blogForm = () => {
+    const hideVisibility = { display: blogVisible ? 'none' : '' }
+    const showVisibility = { display: blogVisible ? '' : 'none' }
+    return (
+      <div>
+        <div style={hideVisibility}>
+          <button onClick={() => setBlogVisible(true)}>create new blog</button>
+        </div>
+        <div style={showVisibility}>
           <BlogForm
-            title={title}
-            setTitle={setTitle}
-            author={author}
-            setAuthor={setAuthor}
-            url={url}
-            setUrl={setUrl}
-            addBlog={addBlog}
+            createBlog={addBlog}
           />
-
-          {
-            blogs.map(blog =>
-              <Blog key={blog.id} blog={blog} />
-            )
-          }
+          <button onClick={() => setBlogVisible(false)}>cancel</button>
         </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <h1>Blogs</h1>
+
+      <Notification
+        message={notificationMessage}
+        type={notificationType}
+      />
+      {!user && loginForm()}
+      {user && <div>
+        <p>{user.name} logged in <button onClick={logout} type='submit'>logout</button></p>
+
+        {blogForm()}
+
+        {
+          blogs.map(blog =>
+            <Blog key={blog.id} blogToView={blog} />
+          )
+        }
+      </div>
       }
     </div>
   )
 }
+
 
 export default App
