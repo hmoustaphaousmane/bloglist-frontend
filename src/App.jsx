@@ -22,7 +22,7 @@ const App = () => {
   const [notificationMessage, setNotificationMessage] = useState(null)
   const [notificationType, setNotificationType] = useState(null)
 
-  const [loginVisible, setLoginVisible] = useState(false)
+  // const [loginVisible, setLoginVisible] = useState(false)
   const [blogVisible, setBlogVisible] = useState(false)
 
   useEffect(() => {
@@ -100,28 +100,28 @@ const App = () => {
     }, 5000)
   }
 
-  const loginForm = () => {
-    const hideVisibility = { display: loginVisible ? 'none' : '' }
-    const showVisibility = { display: loginVisible ? '' : 'none' }
+  // const loginForm = () => {
+  //   const hideVisibility = { display: loginVisible ? 'none' : '' }
+  //   const showVisibility = { display: loginVisible ? '' : 'none' }
 
-    return (
-      <div>
-        <div style={hideVisibility}>
-          <button onClick={() => setLoginVisible(true)}>log in</button>
-        </div>
-        <div style={showVisibility}>
-          <LoginForm
-            username={username}
-            password={password}
-            handleUsernameChange={({ target }) => setUsername(target.value)}
-            handlePasswordChange={({ target }) => setPassword(target.value)}
-            handleSubmit={handleLogin}
-          />
-          <button onClick={() => setLoginVisible(false)}>cancel</button>
-        </div>
-      </div>
-    )
-  }
+  //   return (
+  //     <div>
+  //       <div style={hideVisibility}>
+  //         <button onClick={() => setLoginVisible(true)}>log in</button>
+  //       </div>
+  //       <div style={showVisibility}>
+  //         <LoginForm
+  //           username={username}
+  //           password={password}
+  //           handleUsernameChange={({ target }) => setUsername(target.value)}
+  //           handlePasswordChange={({ target }) => setPassword(target.value)}
+  //           handleSubmit={handleLogin}
+  //         />
+  //         <button onClick={() => setLoginVisible(false)}>cancel</button>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   const blogForm = () => {
     const hideVisibility = { display: blogVisible ? 'none' : '' }
@@ -149,7 +149,15 @@ const App = () => {
         message={notificationMessage}
         type={notificationType}
       />
-      {!user && loginForm()}
+      {/* {!user && loginForm()} */}
+      {!user && <LoginForm
+        username={username}
+        password={password}
+        handleUsernameChange={({ target }) => setUsername(target.value)}
+        handlePasswordChange={({ target }) => setPassword(target.value)}
+        handleSubmit={handleLogin}
+      />
+      }
       {user && <div>
         <p>{user.name} logged in <button onClick={logout} type='submit'>logout</button></p>
 
