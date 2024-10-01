@@ -1,8 +1,7 @@
 import { useState } from 'react'
-
 import blogService from '../services/blogs'
 
-const Blog = ({ blogToView }) => {
+const Blog = ({ blogToView, onView, onLike }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -28,6 +27,7 @@ const Blog = ({ blogToView }) => {
       likes: blog.likes + 1,
     }
 
+
     blogService
       .update(blog.id, newObject)
       .then(returnedBlog => {
@@ -44,15 +44,19 @@ const Blog = ({ blogToView }) => {
     }
   }
 
-  if (blog === null)
-    return null
+  if (blog === null) return null
 
   return (
     <div style={blogStyle}>
-      {blog.title} &nbsp;
+      {blog.title} {blog.author} &nbsp;
       {
         !detailsVisible &&
-        <button onClick={() => setDetailsVisible(true)}>view</button>
+        <button
+          onClick={() => {
+            setDetailsVisible(true)
+            if (onView) onView() // Call the mockHandler when the view button is clicked
+          }}
+        >view</button>
       }
       {
         detailsVisible &&
@@ -60,8 +64,11 @@ const Blog = ({ blogToView }) => {
           <button onClick={() => setDetailsVisible(false)}>hide</button>
           <div>
             {blog.url} <br />
-            {blog.likes} <button onClick={handleLikes}>like</button><br />
-            {blog.author}
+            {blog.likes} <button onClick={(event) => {
+              if (onLike) onLike() // Call the mockHandler when the view button is clicked
+              else handleLikes(event)
+            }}
+            >like</button><br />
           </div>
           {/* display "remove" button only if the logged-in user is the blog owner */}
           {
@@ -70,11 +77,9 @@ const Blog = ({ blogToView }) => {
               <button className="remove" onClick={handleRemove}>remove</button>
             )
           }
-
-          {console.log(blog.user.id)}
         </>
       }
-    </div>
+    </div >
   )
 }
 
